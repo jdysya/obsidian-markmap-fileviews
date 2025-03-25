@@ -1,8 +1,11 @@
 const mmViewType = 'mm-fileview', mmIcon = 'star'
+const mmBlockViewType = 'mm-block-view', mmBlockIcon = 'maximize-2'
+
 module.exports = (plg, ob)=> {
   const { app } = plg
   const md2htmlText = require('./getText/md2htmlText.js')(app, ob)
-  const { genMM2 } = require('./genMM.js')(app, ob)
+  const { genMM, genMM2 } = require('./genMM.js')(app, ob)
+  
   class mmView extends ob.FileView {
     onload() {
       setTimeout(async ()=> await this.updateLeaf(this.file))
@@ -40,13 +43,71 @@ module.exports = (plg, ob)=> {
     getDisplayText() { return this.file?.name || 'Markmap' }
     getIcon() { return mmIcon }
   }
+  
+  // 新增代码块视图类
+  class mmBlockView extends ob.ItemView {
+    constructor(leaf) {
+      super(leaf)
+      this.sourcePath = ''
+      this.htmlContent = ''
+      this.originalMarkdown = ''
+      this.navigation = false  // 启用导航功能以支持悬浮窗,需进一步实现
+    }
+    
+    onload() {
+      this.contentEl.classList.add('markmap-block-view')
+    }
+    
+    async setState(state) {
+      this.sourcePath = state.sourcePath || ''
+      this.htmlContent = state.htmlContent || ''
+      this.originalMarkdown = state.originalMarkdown || ''
+      
+      this.contentEl.empty()
+      
+      if (this.htmlContent) {
+        await genMM(this.contentEl, this.htmlContent, this.sourcePath, {
+          originalMarkdown: this.originalMarkdown
+        })
+        
+        const filename = this.sourcePath.split('/').pop()
+        this.leaf.view.titleEl.textContent = `${filename} (思维导图)`
+        this.leaf.tabHeaderInnerTitleEl.textContent = `${filename} (思维导图)`
+      }
+    }
+    
+    setNavigation(navigation) {
+      this.navigation = navigation
+      
+      if (navigation) {
+        this.contentEl.addClass('is-popup-window')
+      } else {
+        this.contentEl.removeClass('is-popup-window')
+      }
+      
+      // 重新渲染内容以适应新的窗口大小
+      if (this.htmlContent) {
+        this.contentEl.empty()
+        genMM(this.contentEl, this.htmlContent, this.sourcePath, {
+          originalMarkdown: this.originalMarkdown
+        })
+      }
+    }
+    
+    getViewType() { return mmBlockViewType }
+    getDisplayText() { return '思维导图' }
+    getIcon() { return mmBlockIcon }
+  }
+  
   plg.registerView(mmViewType, leaf=> new mmView(leaf))
+  plg.registerView(mmBlockViewType, leaf=> new mmBlockView(leaf))
+  
   plg.addCommand({
     id: 'mm-active-note', name: 'Markmap active note',
     callback: async ()=> {
       const view = app.workspace.getActiveFileView()
       const leaf = app.workspace.getLeaf('split')
-      await leaf.setViewState({ type: mmViewType, state: {file: view.path} })
+      await leaf.setViewState({ type: mmViewType, state: {file: view.file.path} })
     },
     hotkeys: [{modifiers: ['Mod'], key: 'M'}],
   })

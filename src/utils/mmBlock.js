@@ -8,6 +8,10 @@ module.exports = (plg, ob)=> {
     let height
     const md = source.replace(fmRgx, (m, p1)=> { height = p1; return '' })
     el.style.height = `${height||400}px`
+    
+    // 保存原始markdown内容到元素属性
+    el.setAttribute('data-original-markdown', md)
+    
     const text = await md2htmlText(md, ctx.sourcePath)
 
     const isEditModeOpenInReading =
@@ -18,7 +22,10 @@ module.exports = (plg, ob)=> {
       el.style.height = 'fit-content'
     }
     else setTimeout(async ()=> {
-      await genMM(el, text, ctx.sourcePath, {isEditModeOpenInReading})
+      await genMM(el, text, ctx.sourcePath, {
+        isEditModeOpenInReading,
+        originalMarkdown: md
+      })
     }, 100)
   }
   plg.registerMarkdownCodeBlockProcessor('markmap', mmBlock)
