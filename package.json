@@ -8,5 +8,11 @@
     "builtin-modules": "^4.0.0",
     "esbuild": "^0.24.2",
     "obsidian": "latest"
+  },
+  "dependencies": {
+    "markmap-lib": "^0.18.11",
+    "markmap-render": "^0.18.10",
+    "markmap-toolbar": "^0.18.10",
+    "markmap-view": "^0.18.10"
   }
 }

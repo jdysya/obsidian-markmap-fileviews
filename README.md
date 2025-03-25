@@ -9,10 +9,7 @@
 Introduction in [Obsidian Forum t86106](https://forum.obsidian.md/t/exportable-markdown-mindmap/86106/1)
 中文介绍见 [Obsidian Chinese Forum t37790](https://forum-zh.obsidian.md/t/topic/37790/1)
 
-## For Developers
+## Fork details
 
-本仓库着重于保持简洁。你可以在自己的分支自由添加功能，灵活满足使用场景。优秀案例如 jdysya 的复刻版本。
-
-This plugin aims to remain simple. You can freely add features in your own branch to meet various usage scenarios. As a good example you can check out the fork by jdysya.
-
-[jdysya/obsidian-markmap-fileviews](https://github.com/jdysya/obsidian-markmap-fileviews)
+- 添加了导出HTML功能（数学公式、代码块暂不支持）
+- 添加了markmap代码块的全屏展示功能
